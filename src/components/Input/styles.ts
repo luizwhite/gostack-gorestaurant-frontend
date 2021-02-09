@@ -5,6 +5,7 @@ interface IContainerProps {
   isFilled: boolean;
 }
 
+// prettier-ignore
 export const Container = styled.div<IContainerProps>`
   display: flex;
   align-items: center;
@@ -26,16 +27,14 @@ export const Container = styled.div<IContainerProps>`
     line-height: 36px;
   }
 
-  ${props =>
-    props.isFocused &&
-    css`
+  ${(props) => props.isFocused
+    && css`
       color: #ff9000;
       border-color: #ff9000;
     `}
 
-  ${props =>
-    props.isFilled &&
-    css`
+  ${(props) => props.isFilled
+    && css`
       color: #ff9000;
     `}
 

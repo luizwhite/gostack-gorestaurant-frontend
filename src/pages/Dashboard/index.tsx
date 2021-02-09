@@ -27,7 +27,9 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     async function loadFoods(): Promise<void> {
-      // TODO LOAD FOODS
+      const { data } = await api.get('/foods');
+
+      setFoods(data);
     }
 
     loadFoods();
@@ -37,7 +39,16 @@ const Dashboard: React.FC = () => {
     food: Omit<IFoodPlate, 'id' | 'available'>,
   ): Promise<void> {
     try {
-      // TODO ADD A NEW FOOD PLATE TO THE API
+      const newFood = {
+        ...food,
+        available: true,
+        id: foods.length + 1,
+      };
+      const newFoods = [...foods, newFood];
+
+      setFoods(newFoods);
+
+      await api.post('/foods', newFood);
     } catch (err) {
       console.log(err);
     }
@@ -46,11 +57,30 @@ const Dashboard: React.FC = () => {
   async function handleUpdateFood(
     food: Omit<IFoodPlate, 'id' | 'available'>,
   ): Promise<void> {
-    // TODO UPDATE A FOOD PLATE ON THE API
+    const foodIndex = foods.indexOf(editingFood);
+
+    const { available, id } = editingFood;
+
+    const newFood = {
+      ...food,
+      available,
+      id,
+    };
+    const newFoods = [...foods];
+    newFoods.splice(foodIndex, 1, newFood);
+
+    setFoods(newFoods);
+
+    await api.put(`/foods/${editingFood.id}`, {
+      ...editingFood,
+      ...food,
+    });
   }
 
   async function handleDeleteFood(id: number): Promise<void> {
-    // TODO DELETE A FOOD PLATE FROM THE API
+    setFoods(foods.filter((food) => food.id !== id));
+
+    api.delete(`/foods/${id}`);
   }
 
   function toggleModal(): void {
@@ -62,7 +92,9 @@ const Dashboard: React.FC = () => {
   }
 
   function handleEditFood(food: IFoodPlate): void {
-    // TODO SET THE CURRENT EDITING FOOD ID IN THE STATE
+    setEditingFood(food);
+
+    toggleEditModal();
   }
 
   return (
@@ -80,9 +112,10 @@ const Dashboard: React.FC = () => {
         handleUpdateFood={handleUpdateFood}
       />
 
+      {/* prettier-ignore */}
       <FoodsContainer data-testid="foods-list">
-        {foods &&
-          foods.map(food => (
+        {foods
+          && foods.map((food) => (
             <Food
               key={food.id}
               food={food}
